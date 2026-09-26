@@ -1,0 +1,97 @@
+{
+  "label": "macstudio-m3-ultra",
+  "url": "http://127.0.0.1:8080",
+  "model": "mlx-community/DeepSeek-R1-Distill-Llama-70B-4bit",
+  "runs_per_case": 3,
+  "timestamp_epoch": 1790435359.020036,
+  "cases": [
+    {
+      "name": "decode_384",
+      "max_tokens": 384,
+      "runs": [
+        {
+          "prompt_tokens": 100,
+          "output_tokens": 384,
+          "ttft_s": 1.3053385000000002,
+          "total_s": 25.140679792,
+          "generation_s": 23.835341292,
+          "output_tok_s": 16.110530799442937,
+          "characters": 1851,
+          "run": 1
+        },
+        {
+          "prompt_tokens": 96,
+          "output_tokens": 384,
+          "ttft_s": 1.049312208,
+          "total_s": 24.909121458,
+          "generation_s": 23.85980925,
+          "output_tok_s": 16.09400963672834,
+          "characters": 2041,
+          "run": 2
+        },
+        {
+          "prompt_tokens": 97,
+          "output_tokens": 384,
+          "ttft_s": 1.0386658330000031,
+          "total_s": 24.87616737500001,
+          "generation_s": 23.837501542000005,
+          "output_tok_s": 16.10907079852387,
+          "characters": 2040,
+          "run": 3
+        }
+      ],
+      "median": {
+        "prompt_tokens": 97,
+        "output_tokens": 384,
+        "ttft_s": 1.049312208,
+        "total_s": 24.909121458,
+        "generation_s": 23.837501542000005,
+        "output_tok_s": 16.10907079852387
+      }
+    },
+    {
+      "name": "long_prompt_128",
+      "max_tokens": 128,
+      "runs": [
+        {
+          "prompt_tokens": 21653,
+          "output_tokens": 128,
+          "ttft_s": 206.59274566700003,
+          "total_s": 217.74223212500004,
+          "generation_s": 11.149486458000013,
+          "output_tok_s": 11.480349384895396,
+          "characters": 629,
+          "run": 1
+        },
+        {
+          "prompt_tokens": 21651,
+          "output_tokens": 128,
+          "ttft_s": 206.020771625,
+          "total_s": 217.1534395,
+          "generation_s": 11.132667874999981,
+          "output_tok_s": 11.497693224769828,
+          "characters": 549,
+          "run": 2
+        },
+        {
+          "prompt_tokens": 21652,
+          "output_tokens": 128,
+          "ttft_s": 205.86793266700005,
+          "total_s": 216.98795720799995,
+          "generation_s": 11.120024540999907,
+          "output_tok_s": 11.510765963515608,
+          "characters": 559,
+          "run": 3
+        }
+      ],
+      "median": {
+        "prompt_tokens": 21652,
+        "output_tokens": 128,
+        "ttft_s": 206.020771625,
+        "total_s": 217.1534395,
+        "generation_s": 11.132667874999981,
+        "output_tok_s": 11.497693224769828
+      }
+    }
+  ]
+}

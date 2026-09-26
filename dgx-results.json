@@ -1,0 +1,97 @@
+{
+  "label": "two-node-gb10-cluster",
+  "url": "http://spark-3f93.local:8000",
+  "model": "deepseek-v4-flash",
+  "runs_per_case": 3,
+  "timestamp_epoch": 1790434462.4464371,
+  "cases": [
+    {
+      "name": "decode_384",
+      "max_tokens": 384,
+      "runs": [
+        {
+          "prompt_tokens": 86,
+          "output_tokens": 384,
+          "ttft_s": 2.327832125,
+          "total_s": 13.582865541999999,
+          "generation_s": 11.255033417,
+          "output_tok_s": 34.11806840306603,
+          "characters": 1447,
+          "run": 1
+        },
+        {
+          "prompt_tokens": 87,
+          "output_tokens": 384,
+          "ttft_s": 2.31594325,
+          "total_s": 13.604017207999998,
+          "generation_s": 11.288073957999998,
+          "output_tok_s": 34.01820376343782,
+          "characters": 1339,
+          "run": 2
+        },
+        {
+          "prompt_tokens": 90,
+          "output_tokens": 384,
+          "ttft_s": 2.3180054589999983,
+          "total_s": 14.216362084,
+          "generation_s": 11.898356625000002,
+          "output_tok_s": 32.27336447397835,
+          "characters": 1492,
+          "run": 3
+        }
+      ],
+      "median": {
+        "prompt_tokens": 87,
+        "output_tokens": 384,
+        "ttft_s": 2.3180054589999983,
+        "total_s": 13.604017207999998,
+        "generation_s": 11.288073957999998,
+        "output_tok_s": 34.01820376343782
+      }
+    },
+    {
+      "name": "long_prompt_128",
+      "max_tokens": 128,
+      "runs": [
+        {
+          "prompt_tokens": 24356,
+          "output_tokens": 128,
+          "ttft_s": 16.136605834,
+          "total_s": 19.635160542,
+          "generation_s": 3.4985547080000003,
+          "output_tok_s": 36.58653663677395,
+          "characters": 471,
+          "run": 1
+        },
+        {
+          "prompt_tokens": 24354,
+          "output_tokens": 128,
+          "ttft_s": 16.142674749999998,
+          "total_s": 19.822354000000004,
+          "generation_s": 3.6796792500000066,
+          "output_tok_s": 34.785640623431995,
+          "characters": 516,
+          "run": 2
+        },
+        {
+          "prompt_tokens": 24353,
+          "output_tokens": 128,
+          "ttft_s": 16.150992458000005,
+          "total_s": 19.751540417,
+          "generation_s": 3.6005479589999965,
+          "output_tok_s": 35.55014443844549,
+          "characters": 486,
+          "run": 3
+        }
+      ],
+      "median": {
+        "prompt_tokens": 24354,
+        "output_tokens": 128,
+        "ttft_s": 16.142674749999998,
+        "total_s": 19.751540417,
+        "generation_s": 3.6005479589999965,
+        "output_tok_s": 35.55014443844549
+      }
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+test,metric,macstudio_r1_70b,two_node_gb10_v4_flash,unit
+short_prompt,time_to_first_token,1.0493,2.3180,seconds
+short_prompt,total_time,24.9091,13.6040,seconds
+short_prompt,output_rate,16.1091,34.0182,tokens_per_second
+short_prompt,prompt_tokens,97,87,tokens
+short_prompt,output_tokens,384,384,tokens
+long_prompt,time_to_first_token,206.0208,16.1427,seconds
+long_prompt,total_time,217.1534,19.7515,seconds
+long_prompt,output_rate,11.4977,35.5501,tokens_per_second
+long_prompt,prompt_tokens,21652,24354,tokens
+long_prompt,output_tokens,128,128,tokens
