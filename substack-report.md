@@ -1,126 +1,73 @@
-# Mac Studio vs. a Two-Node GB10 Cluster: What My Local LLM Benchmark Actually Found
+# Laguna-S 2.1 on a Mac Studio vs. DGX Spark: Same Model, Different Bottlenecks
 
-*A 96GB M3 Ultra running a 71B DeepSeek distill model faced a DGX Spark–class cluster running the 284B-parameter DeepSeek-V4-Flash. The answer changed dramatically when the prompt got long.*
+*A reproducible three-run comparison of oMLX on Apple silicon and vLLM on NVIDIA GB10 hardware.*
 
-On September 26, 2026, I benchmarked two local AI systems that take very different routes to private inference.
+I wanted a cleaner comparison than my earlier different-model test, so I ran the same Laguna-S 2.1 workload on both systems. The Mac Studio used the 4-bit MLX-community `Laguna-S-2.1-oQ4e` checkpoint through oMLX. The DGX Spark endpoint used Laguna-S 2.1 in NVIDIA NVFP4 through vLLM.
 
-On one side was a Mac Studio with an M3 Ultra and 96GB of unified memory, serving a 4-bit DeepSeek-R1-Distill-Llama-70B model through MLX. On the other was a two-node NVIDIA GB10 cluster—one NVIDIA DGX Spark and one Acer Veriton GN100—serving DeepSeek-V4-Flash through vLLM and Ray.
+The result is not a simple winner: the Mac was dramatically faster at token generation, while the DGX was dramatically faster at ingesting a large prompt.
 
-This was deliberately a comparison of the models as I actually deploy them, not a laboratory test that forces identical weights onto both platforms. That makes it more useful as a real-world systems comparison, but it also means the results cannot be attributed to hardware alone.
+## Results
 
-The short version: the Mac felt more immediate on a short prompt, but the two-node GB10 system generated more than twice as fast and crushed the Mac on a 72,000-character context.
+All figures are medians from three uncached streaming requests. The client ran on the Mac; DGX measurements include local-network and API overhead.
 
-## The headline results
+| Metric | Mac Studio M3 Ultra / oMLX | DGX Spark / vLLM |
+|---|---:|---:|
+| Short-prompt end-to-end, 384 output tokens | **60.97 tok/s** | 20.92 tok/s |
+| Short-prompt time to first token | **0.400 s** | 2.644 s |
+| Short-prompt decode | **60.97 tok/s** | 24.45 tok/s |
+| Long-prompt prefill, 28,433 tokens | 671 tok/s | **1,788 tok/s** |
+| Long-prompt decode, 128 output tokens | **51.61 tok/s** | 9.51 tok/s |
+| Long-prompt end-to-end | 2.85 tok/s | **4.30 tok/s** |
 
-| Test | Mac Studio, R1 Distill 70B | Two-node GB10, V4 Flash | Practical winner |
-|---|---:|---:|---|
-| Short-prompt time to first token | **1.05 s** | 2.32 s | Mac, 2.2× quicker |
-| Short-prompt generation | 16.11 tok/s | **34.02 tok/s** | GB10, 2.11× faster |
-| Short-prompt total time, 384 tokens | 24.91 s | **13.60 s** | GB10, 1.83× faster |
-| Long-prompt time to first token | 206.02 s | **16.14 s** | GB10, 12.76× faster |
-| Long-prompt generation | 11.50 tok/s | **35.55 tok/s** | GB10, 3.09× faster |
-| Long-prompt total time, 128 tokens | 217.15 s | **19.75 s** | GB10, 10.99× faster |
+The short-prompt end-to-end rate is completion tokens divided by full request time. Decode excludes time to first token. Prefill is prompt tokens divided by time to first generated content, so it is an application-level throughput figure rather than a kernel-only measurement.
 
-Every number in the table is the median of three measured runs. Both models were already loaded, one warm-up request was excluded, sampling temperature was zero, and responses streamed through OpenAI-compatible APIs.
+## The systems
 
-## The two systems
+The Mac is an M3 Ultra Mac Studio with 28 CPU cores, a 60-core GPU, 96GB of unified memory, and 819GB/s of memory bandwidth. It ran oMLX with one model loaded and one concurrent request. The checkpoint occupies roughly 60GB on disk and reports a 118B-parameter model with 8B active parameters.
 
-### Mac Studio
+The DGX Spark endpoint ran the same Laguna family through vLLM using NVIDIA’s NVFP4 format. The systems therefore share model architecture and prompts, but not quantization format, runtime, kernels, or memory-management strategy. This is a systems benchmark, not a claim that one chip is intrinsically a fixed multiple faster.
 
-The Mac was a base M3 Ultra configuration with a 28-core CPU, 60-core GPU, 96GB of unified memory, and 819GB/s of memory bandwidth. Those detected specifications match [Apple’s technical listing for this configuration](https://www.apple.com/shop/product/g1ce9ll/a/Refurbished-Mac-Studio-Apple-M3-Ultra-chip-with-28%E2%80%91Core-CPU-and-60%E2%80%91Core-GPU).
+## Why the Mac wins decoding
 
-It ran:
+For a short prompt, the Mac produced its first token in about four-tenths of a second and then generated nearly 61 tokens per second. The DGX took 2.6 seconds to reach its first token and decoded at about 24 tokens per second.
 
-- `mlx-community/DeepSeek-R1-Distill-Llama-70B-4bit`
-- 71 billion parameters
-- 4-bit MLX format, approximately 39.7GB on disk
-- MLX-LM 0.31.3 and MLX 0.32.2
-- Prompt caching disabled
-- A single loaded model on the M3 Ultra
+That is the profile of a machine that feels excellent for interactive conversation: low startup latency and a fast stream once generation begins. The Mac’s unified-memory bandwidth is a good match for repeated autoregressive decode steps.
 
-The [MLX model card](https://huggingface.co/mlx-community/DeepSeek-R1-Distill-Llama-70B-4bit) identifies the conversion as a 71B-parameter, 4-bit model and reports a 39.7GB file footprint.
+The long-prompt decode result also favored the Mac, although its rate fell to 51.6 tokens per second after the 28k-token context was loaded. The DGX fell much further, to 9.5 tokens per second in this test.
 
-### The GB10 cluster
+## Why the DGX wins prefill
 
-The second endpoint was not running on one DGX Spark alone. The active Ray cluster contained two GB10 nodes: an NVIDIA DGX Spark and an Acer Veriton GN100. vLLM split the model across both GPUs with tensor parallelism set to two.
+On the 28,433-token uncached prompt, the DGX reached its first generated content in 15.9 seconds—about 1,788 prompt tokens per second. The Mac needed 42.4 seconds, or roughly 671 prompt tokens per second.
 
-Each GB10 has a 20-core Arm CPU and 128GB of coherent unified LPDDR5x memory. NVIDIA specifies 273GB/s of memory bandwidth, up to 1 PFLOP of sparse FP4 tensor performance, and a 140-watt GB10 SoC TDP for a DGX Spark. Full specifications are available on [NVIDIA’s DGX Spark product page](https://www.nvidia.com/en-us/products/workstations/dgx-spark/) and in the [DGX Spark hardware guide](https://docs.nvidia.com/dgx/dgx-spark/hardware.html).
+That advantage matters for document analysis, codebase reviews, long logs, and retrieval-augmented prompts. For this 128-token long-context task, the DGX completed the full request in 29.8 seconds versus 44.9 seconds on the Mac.
 
-The cluster ran:
+## What I would use each system for
 
-- `deepseek-ai/DeepSeek-V4-Flash`
-- 284 billion total parameters, with 13 billion activated per token
-- Mixed FP4 and FP8 weights
-- vLLM 0.25.1 and Ray 2.55.1
-- Tensor parallelism across two GB10 GPUs
-- FP8 KV cache
-- Two-token MTP speculative decoding
-- A deployed context cap of 65,536 tokens
+I would choose the Mac Studio for private interactive work: chat, coding assistance, and repeated short-to-medium prompts where first-token latency and sustained generation dominate.
 
-DeepSeek’s [official V4-Flash model card](https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash) lists 284B total parameters, 13B activated parameters, mixed FP4/FP8 precision, and a theoretical one-million-token model context. My vLLM server was intentionally configured with the smaller 65,536-token ceiling.
+I would choose the DGX Spark for workflows dominated by large prompt ingestion. If the task is “read this very large document or repository and then answer briefly,” the DGX’s prefill advantage is more important than its lower decode rate.
 
-## How I tested
+The practical lesson is that “tokens per second” is not one number. A serving stack has at least three relevant speeds: time to first token, prefill throughput, and decode throughput.
 
-I used two tests designed to isolate different parts of the experience.
+## Method and limitations
 
-The first was a short prompt asking for a detailed technical field guide. Each model was allowed to generate 384 tokens. This primarily measured interactive first-token latency and steady single-stream decode speed.
+The benchmark used an OpenAI-compatible streaming API, one warm-up request, temperature zero, three measured runs per case, and a unique nonce on every prompt to defeat prefix reuse. The short case requested 384 tokens. The long case used a synthetic 900-record operations log and requested 128 tokens.
 
-The second was a synthetic operations log containing 900 records, 6,318 whitespace-delimited words, and 71,964 characters. Each model summarized it in up to 128 tokens. Because the tokenizers differ, the identical source text became 21,652 median prompt tokens on the Llama tokenizer and 24,354 on the V4 tokenizer.
+This measures latency and single-stream speed, not answer quality, power efficiency, maximum concurrency, or total cost. The DGX result is an endpoint-level result and includes network overhead. Different quantization formats and server implementations remain part of the real deployment being compared.
 
-I added a unique nonce at the beginning of every measured request. That matters because vLLM can reuse a repeated prompt prefix. Changing the leading prefix forced every long-prompt trial to perform uncached prefill work. The Mac server already had its prompt cache disabled.
+## Reproduce it
 
-The benchmark client ran on the Mac. Its MLX request traveled over loopback, while the GB10 request traveled over the local network. As a result, the network overhead is included in the GB10 figures. This slightly favors the Mac on latency, not the remote system.
+The repository contains the dependency-free benchmark client and raw result files. With either server running:
 
-## Short prompts: the Mac responds first, then falls behind
+```bash
+python benchmark_openai_stream.py \
+  --url http://127.0.0.1:8000 \
+  --model Laguna-S-2.1-oQ4e \
+  --runs 3 \
+  --label "Mac Studio / Laguna / oMLX" \
+  --output laguna-results.json
+```
 
-For a short prompt, the Mac delivered its first streamed token in 1.05 seconds. The GB10 cluster needed 2.32 seconds. If “feels instant” is the goal, the Mac won that moment.
+For the DGX endpoint, change the URL to `http://spark-3f93.local:8000` and the model name to `laguna-s-2.1`.
 
-Once generation began, the outcome reversed. DeepSeek-V4-Flash ran at 34.02 output tokens per second, while the 70B model on the Mac produced 16.11. The GB10 system was 2.11 times faster at sustained decoding and completed the 384-token response in 13.60 seconds instead of 24.91.
-
-That produces an interesting user experience: the Mac begins talking sooner, but the cluster finishes substantially sooner.
-
-## Long prompts: this is where the systems separate
-
-The long-context test was not close.
-
-The Mac took 206.02 seconds—nearly three and a half minutes—to emit its first token. The GB10 cluster took 16.14 seconds. End to end, the Mac required 217.15 seconds, while the cluster finished in 19.75 seconds.
-
-The GB10 deployment therefore cut total latency by roughly 91% and finished the task almost 11 times sooner.
-
-Long context also reduced the Mac’s decode speed from 16.11 to 11.50 tokens per second. The V4 deployment remained near its short-context rate, moving from 34.02 to 35.55 tokens per second in the median runs. The two tokenizers and outputs are not identical, so the small increase should not be interpreted as a universal scaling claim. The important observation is that the GB10 system retained its overall generation rate while the Mac slowed materially.
-
-## Why the result is bigger than “NVIDIA versus Apple”
-
-It would be tempting to call this a pure chip shootout. It is not.
-
-The Mac ran a 71B-parameter Llama-derived model in a 4-bit MLX format. The GB10 cluster ran a much larger mixture-of-experts model, but only 13B of its 284B parameters activate for each token. The deployments also used different inference engines, quantization schemes, KV-cache formats, tokenizers, attention architectures, and speculative decoding settings. Finally, the V4 model was distributed across two computers.
-
-Those differences are not experimental noise; they are the point of this particular comparison. They show what each complete stack delivered in a working local setup. They do not prove that one chip is intrinsically a certain multiple faster than the other.
-
-The shape of the result still makes technical sense. Autoregressive decoding often leans heavily on memory movement, an area where the M3 Ultra’s high unified-memory bandwidth makes a 39.7GB dense model surprisingly capable. Prompt ingestion is more compute-intensive, and V4-Flash was designed around efficient long-context processing. The GB10 deployment also benefits from Blackwell tensor cores, a sparse mixture-of-experts architecture, two GPUs, vLLM, FP8 KV cache, and speculative decoding.
-
-## What I would choose
-
-For interactive chats with modest prompts, the Mac remains compelling. It is quiet, simple, fast to first token, and runs a serious 70B-class model entirely inside one familiar desktop.
-
-For document analysis, repository-scale prompts, large logs, or any workflow where long-context waiting dominates, the two-node GB10 deployment is in a different class. Waiting 16 seconds is noticeable. Waiting 206 seconds changes how willing I am to use the tool at all.
-
-For sustained generation, the cluster also wins clearly: roughly 34 tokens per second versus 16 on short context, and 36 versus 11.5 after a long prompt.
-
-My conclusion is not that the Mac lost. It is that the workload determines which advantage matters. The M3 Ultra offered the better short-prompt first impression. The V4-on-GB10 stack delivered the better finish—and an overwhelming long-context result.
-
-## Caveats
-
-- This benchmark measures speed and latency, not answer quality.
-- The systems ran different models and software stacks.
-- The GB10 result used two nodes, not a single DGX Spark.
-- Prompt token counts differ because the models use different tokenizers.
-- The test measured one streaming request at a time, not multi-user throughput.
-- Power draw and energy per token were not measured.
-- Results describe these exact server settings and software versions; tuning either stack could change them.
-
-## Reproducibility
-
-The benchmark used an OpenAI-compatible streaming client, a warm-up request followed by three measured runs per case, temperature zero, and median aggregation. A unique leading nonce defeated prefix reuse on every measured prompt. The complete script and raw JSON results accompany this article.
-
-*Test date: September 26, 2026. Values are rounded from the raw measurements.*
+*Test date: September 26, 2026. Results are rounded; raw measurements are committed alongside this article.*

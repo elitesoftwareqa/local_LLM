@@ -1,0 +1,97 @@
+{
+  "label": "DGX Spark / Laguna-S 2.1 NVFP4 / vLLM",
+  "url": "http://spark-3f93.local:8000",
+  "model": "laguna-s-2.1",
+  "runs_per_case": 3,
+  "timestamp_epoch": 1790452312.172268,
+  "cases": [
+    {
+      "name": "decode_384",
+      "max_tokens": 384,
+      "runs": [
+        {
+          "prompt_tokens": 135,
+          "output_tokens": 384,
+          "ttft_s": 2.727131833002204,
+          "total_s": 18.33860137499869,
+          "generation_s": 15.611469541996485,
+          "output_tok_s": 24.59730001503061,
+          "characters": 1717,
+          "run": 1
+        },
+        {
+          "prompt_tokens": 132,
+          "output_tokens": 384,
+          "ttft_s": 2.6437051670072833,
+          "total_s": 18.35030325000116,
+          "generation_s": 15.706598082993878,
+          "output_tok_s": 24.44832407189251,
+          "characters": 1699,
+          "run": 2
+        },
+        {
+          "prompt_tokens": 129,
+          "output_tokens": 384,
+          "ttft_s": 2.5404306250129594,
+          "total_s": 19.11033833300462,
+          "generation_s": 16.56990770799166,
+          "output_tok_s": 23.174540665353067,
+          "characters": 1747,
+          "run": 3
+        }
+      ],
+      "median": {
+        "prompt_tokens": 132,
+        "output_tokens": 384,
+        "ttft_s": 2.6437051670072833,
+        "total_s": 18.35030325000116,
+        "generation_s": 15.706598082993878,
+        "output_tok_s": 24.44832407189251
+      }
+    },
+    {
+      "name": "long_prompt_128",
+      "max_tokens": 128,
+      "runs": [
+        {
+          "prompt_tokens": 28430,
+          "output_tokens": 128,
+          "ttft_s": 17.801397792005446,
+          "total_s": 29.80042416699871,
+          "generation_s": 11.999026374993264,
+          "output_tok_s": 10.667532181340993,
+          "characters": 644,
+          "run": 1
+        },
+        {
+          "prompt_tokens": 28437,
+          "output_tokens": 128,
+          "ttft_s": 15.907778583001345,
+          "total_s": 29.85814958300034,
+          "generation_s": 13.950370999998995,
+          "output_tok_s": 9.175383220991701,
+          "characters": 588,
+          "run": 2
+        },
+        {
+          "prompt_tokens": 28432,
+          "output_tokens": 128,
+          "ttft_s": 15.258116042008623,
+          "total_s": 28.720830707999994,
+          "generation_s": 13.46271466599137,
+          "output_tok_s": 9.507740687942027,
+          "characters": 571,
+          "run": 3
+        }
+      ],
+      "median": {
+        "prompt_tokens": 28432,
+        "output_tokens": 128,
+        "ttft_s": 15.907778583001345,
+        "total_s": 29.80042416699871,
+        "generation_s": 13.46271466599137,
+        "output_tok_s": 9.507740687942027
+      }
+    }
+  ]
+}
