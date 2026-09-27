@@ -1,0 +1,97 @@
+{
+  "label": "Mac Studio M3 Ultra / Devstral Small 2 24B / oMLX",
+  "url": "http://127.0.0.1:8000",
+  "model": "Devstral-Small-2-24B-Instruct-2512-OptiQ-4bit",
+  "runs_per_case": 3,
+  "timestamp_epoch": 1790489821.518827,
+  "cases": [
+    {
+      "name": "decode_384",
+      "max_tokens": 384,
+      "runs": [
+        {
+          "prompt_tokens": 483,
+          "output_tokens": 384,
+          "ttft_s": 1.3757011669949861,
+          "total_s": 10.812787957998808,
+          "generation_s": 9.437086791003821,
+          "output_tok_s": 40.69052330493126,
+          "characters": 1547,
+          "run": 1
+        },
+        {
+          "prompt_tokens": 481,
+          "output_tokens": 384,
+          "ttft_s": 1.2954834169941023,
+          "total_s": 10.72435320900695,
+          "generation_s": 9.428869792012847,
+          "output_tok_s": 40.72598396949809,
+          "characters": 1526,
+          "run": 2
+        },
+        {
+          "prompt_tokens": 482,
+          "output_tokens": 384,
+          "ttft_s": 1.3773443340032827,
+          "total_s": 10.809076500008814,
+          "generation_s": 9.431732166005531,
+          "output_tok_s": 40.71362431007509,
+          "characters": 1410,
+          "run": 3
+        }
+      ],
+      "median": {
+        "prompt_tokens": 482,
+        "output_tokens": 384,
+        "ttft_s": 1.3757011669949861,
+        "total_s": 10.809076500008814,
+        "generation_s": 9.431732166005531,
+        "output_tok_s": 40.71362431007509
+      }
+    },
+    {
+      "name": "long_prompt_128",
+      "max_tokens": 128,
+      "runs": [
+        {
+          "prompt_tokens": 27886,
+          "output_tokens": 128,
+          "ttft_s": 85.70582474999537,
+          "total_s": 90.11115074998816,
+          "generation_s": 4.405325999992783,
+          "output_tok_s": 29.05573844029016,
+          "characters": 317,
+          "run": 1
+        },
+        {
+          "prompt_tokens": 27888,
+          "output_tokens": 128,
+          "ttft_s": 85.93773150000197,
+          "total_s": 90.38041954199434,
+          "generation_s": 4.442688041992369,
+          "output_tok_s": 28.81138598752414,
+          "characters": 320,
+          "run": 2
+        },
+        {
+          "prompt_tokens": 27886,
+          "output_tokens": 128,
+          "ttft_s": 85.97697058400081,
+          "total_s": 90.43168320899713,
+          "generation_s": 4.4547126249963185,
+          "output_tok_s": 28.733615560690804,
+          "characters": 320,
+          "run": 3
+        }
+      ],
+      "median": {
+        "prompt_tokens": 27886,
+        "output_tokens": 128,
+        "ttft_s": 85.93773150000197,
+        "total_s": 90.38041954199434,
+        "generation_s": 4.442688041992369,
+        "output_tok_s": 28.81138598752414
+      }
+    }
+  ]
+}

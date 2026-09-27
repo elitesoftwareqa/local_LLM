@@ -1,0 +1,97 @@
+{
+  "label": "MacBook Pro M5 Pro / Devstral Small 2 24B OptiQ / MLX",
+  "url": "http://127.0.0.1:18080",
+  "model": "/Users/ryanaquino/.cache/huggingface/Devstral-Small-2-24B-Instruct-2512-OptiQ-4bit",
+  "runs_per_case": 3,
+  "timestamp_epoch": 1790493592.4199328,
+  "cases": [
+    {
+      "name": "decode_384",
+      "max_tokens": 384,
+      "runs": [
+        {
+          "prompt_tokens": 482,
+          "output_tokens": 384,
+          "ttft_s": 1.0661317500052974,
+          "total_s": 23.26778516700142,
+          "generation_s": 22.201653416996123,
+          "output_tok_s": 17.296009120925874,
+          "characters": 1551,
+          "run": 1
+        },
+        {
+          "prompt_tokens": 481,
+          "output_tokens": 384,
+          "ttft_s": 1.0672791660035728,
+          "total_s": 23.34616908300086,
+          "generation_s": 22.278889916997286,
+          "output_tok_s": 17.23604728200726,
+          "characters": 1562,
+          "run": 2
+        },
+        {
+          "prompt_tokens": 484,
+          "output_tokens": 384,
+          "ttft_s": 1.0683967500081053,
+          "total_s": 23.219158334002714,
+          "generation_s": 22.15076158399461,
+          "output_tok_s": 17.33574705970676,
+          "characters": 1371,
+          "run": 3
+        }
+      ],
+      "median": {
+        "prompt_tokens": 482,
+        "output_tokens": 384,
+        "ttft_s": 1.0672791660035728,
+        "total_s": 23.26778516700142,
+        "generation_s": 22.201653416996123,
+        "output_tok_s": 17.296009120925874
+      }
+    },
+    {
+      "name": "long_prompt_128",
+      "max_tokens": 128,
+      "runs": [
+        {
+          "prompt_tokens": 27887,
+          "output_tokens": 128,
+          "ttft_s": 62.17242091600201,
+          "total_s": 72.39226549999148,
+          "generation_s": 10.21984458398947,
+          "output_tok_s": 12.524652302494532,
+          "characters": 194,
+          "run": 1
+        },
+        {
+          "prompt_tokens": 27887,
+          "output_tokens": 128,
+          "ttft_s": 61.06378808400768,
+          "total_s": 71.26467129201046,
+          "generation_s": 10.200883208002779,
+          "output_tok_s": 12.547933094614951,
+          "characters": 320,
+          "run": 2
+        },
+        {
+          "prompt_tokens": 27886,
+          "output_tokens": 128,
+          "ttft_s": 61.005867291009054,
+          "total_s": 71.1482744160021,
+          "generation_s": 10.142407124993042,
+          "output_tok_s": 12.620278245839772,
+          "characters": 320,
+          "run": 3
+        }
+      ],
+      "median": {
+        "prompt_tokens": 27887,
+        "output_tokens": 128,
+        "ttft_s": 61.06378808400768,
+        "total_s": 71.26467129201046,
+        "generation_s": 10.200883208002779,
+        "output_tok_s": 12.547933094614951
+      }
+    }
+  ]
+}
